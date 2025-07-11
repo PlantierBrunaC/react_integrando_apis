@@ -3,10 +3,12 @@ import IRestaurante from '../../interfaces/IRestaurante';
 import style from './ListaRestaurantes.module.scss';
 import Restaurante from './Restaurante';
 import axios from 'axios';
+import { IPaginacao } from '../../interfaces/IPaginacao';
 
 const ListaRestaurantes = () => {
 
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
+  const [proximaPagina, serProximaPagina] = useState('')
 
   // Código remoção do código chumbado, substituido por API 
   // const restaurantes: IRestaurante[] = [
@@ -96,9 +98,10 @@ const ListaRestaurantes = () => {
 
 useEffect(() =>{
   //Obter os restaurantes
-  axios.get('http://localhost:8000/api/v1/restaurantes/')
+  axios.get<IPaginacao<IRestaurante>>('http://localhost:8000/api/v1/restaurantes/')
   .then(response => {
     setRestaurantes(response.data.results)
+    serProximaPagina(response.data.next)
     //console.log(response)
   })
   .catch(error => {
@@ -106,9 +109,22 @@ useEffect(() =>{
   })
 }, [])
 
+const nextPage = () => {
+  axios.get<IPaginacao<IRestaurante>>(proximaPagina)
+  .then(response => {
+    setRestaurantes([...restaurantes, ...response.data.results])
+    serProximaPagina(response.data.next)
+  })
+  .catch(error => {
+    console.log(error)
+  })
+}
+
   return (<section className={style.ListaRestaurantes}>
     <h1>Os restaurantes mais <em>bacanas</em>!</h1>
     {restaurantes?.map(item => <Restaurante restaurante={item} key={item.id} />)}
+    {proximaPagina && <button onClick={nextPage} >  Ver mais restaurantes </button> 
+    }
   </section>)
 }
 
