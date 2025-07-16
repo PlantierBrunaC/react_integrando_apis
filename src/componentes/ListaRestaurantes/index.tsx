@@ -4,11 +4,12 @@ import style from './ListaRestaurantes.module.scss';
 import Restaurante from './Restaurante';
 import axios from 'axios';
 import { IPaginacao } from '../../interfaces/IPaginacao';
+import IPrato from '../../interfaces/IPrato';
 
 const ListaRestaurantes = () => {
 
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
-  const [proximaPagina, serProximaPagina] = useState('')
+  const [proximaPagina, setProximaPagina] = useState('')
 
   // Código remoção do código chumbado, substituido por API 
   // const restaurantes: IRestaurante[] = [
@@ -96,34 +97,57 @@ const ListaRestaurantes = () => {
   //   }
   // ]
 
-useEffect(() =>{
-  //Obter os restaurantes
-  axios.get<IPaginacao<IRestaurante>>('http://localhost:8000/api/v1/restaurantes/')
-  .then(response => {
-    setRestaurantes(response.data.results)
-    serProximaPagina(response.data.next)
-    //console.log(response)
-  })
-  .catch(error => {
-    console.log(error)
-  })
-}, [])
+  useEffect(() => {
+    //Obter os restaurantes
+    axios.get<IPaginacao<IRestaurante>>('http://localhost:8000/api/v1/restaurantes/')
+      .then(response => {
+              const listaRestaurantes = response.data.results
 
-const nextPage = () => {
-  axios.get<IPaginacao<IRestaurante>>(proximaPagina)
-  .then(response => {
-    setRestaurantes([...restaurantes, ...response.data.results])
-    serProximaPagina(response.data.next)
-  })
-  .catch(error => {
-    console.log(error)
-  })
-}
+        // setRestaurantes(response.data.results)
+        setProximaPagina(response.data.next)
+        //console.log(response)
+
+        axios.get<IPaginacao<IPrato>>('http://localhost:8000/api/v1/pratos/')
+          .then(responsePrato => {
+            const pratos = responsePrato.data.results
+
+            //Relaciona os pratos ao restaurante
+            const restaurantesComPratos = listaRestaurantes.map(rest => ({
+  ...rest,
+  pratos: pratos.filter(p => p.restaurante === rest.id)
+}))
+            
+            setRestaurantes(restaurantesComPratos)
+            
+
+          })
+          .catch(error => {
+            console.log("Erro ao carregar pratos"+error)
+          })
+
+
+
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }, [])
+
+  const nextPage = () => {
+    axios.get<IPaginacao<IRestaurante>>(proximaPagina)
+      .then(response => {
+        setRestaurantes([...restaurantes, ...response.data.results])
+        setProximaPagina(response.data.next)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
 
   return (<section className={style.ListaRestaurantes}>
     <h1>Os restaurantes mais <em>bacanas</em>!</h1>
     {restaurantes?.map(item => <Restaurante restaurante={item} key={item.id} />)}
-    {proximaPagina && <button onClick={nextPage} >  Ver mais restaurantes </button> 
+    {proximaPagina && <button onClick={nextPage} >  Ver mais restaurantes </button>
     }
   </section>)
 }
