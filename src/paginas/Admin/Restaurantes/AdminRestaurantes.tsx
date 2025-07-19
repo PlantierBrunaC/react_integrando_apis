@@ -20,7 +20,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
 
-
 const AdminRestaurantes = () => {
 
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([])
@@ -36,40 +35,45 @@ const AdminRestaurantes = () => {
 
   }, [])
 
+  const deletar = (restauranteASerDeletado: IRestaurante) => {
+    axios.delete(`http://localhost:8000/api/v2/restaurantes/${restauranteASerDeletado.id}/`)
+    .then(() => {
+        const listaDeRestaurantes = restaurantes.filter(restaurante => restaurante.id !== restauranteASerDeletado.id)
+        setRestaurantes([...listaDeRestaurantes])
+      alert("Restaurante deletado com sucesso!")
+    }
+)
+
+  }
+
   return (
     <>
-    
+   
+
       <Box>
 
         {/* HEADER COM FUNDO CINZA CLARO */}
-      <Box sx={{ backgroundColor: '#d5f0d6', py: 3, mb: 4 }}>
+        <Box sx={{ backgroundColor: '#f5f5f5', py: 3, mb: 4 }}>
           <Container maxWidth="lg">
             <Typography 
               variant="h4" 
               component="h1" 
-              sx={{ fontWeight: 'bold', textAlign: 'center', color: '#273b27' }}
+              sx={{ fontWeight: 'bold', textAlign: 'center' }}
             >
               Administração dos Restaurantes - Alfood
             </Typography>
           </Container>
         </Box>
 
-         {/* BOTÃO DE CADASTRAR NOVO RESTAURANTE */}
+        {/* BOTÃO DE CADASTRAR NOVO RESTAURANTE */}
         <Container maxWidth="lg" sx={{ mb: 3 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h6">Cadastrar novo restaurante</Typography>
             <Button
               variant="contained"
+              sx={{ backgroundColor: '#273b27', '&:hover': { backgroundColor: '#1e2e1e' } }}
               component={RouterLink}
-              sx={{
-        backgroundColor: '#ffffff',
-        color: '#273b27',
-        '&:hover': {
-          backgroundColor: '#e0e0e0'
-        }
-      }}
-              to="/admin/restaurantes/novo"
-            >
+              to="/admin/restaurantes/novo" >
               Cadastrar
             </Button>
           </Box>
@@ -82,16 +86,25 @@ const AdminRestaurantes = () => {
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Nome</TableCell>
-                  <TableCell>Editar</TableCell>
-                  <TableCell>Deletar</TableCell>
+                <TableRow sx={{ backgroundColor: '#273b27' }}>
+                  <TableCell sx={{ color: '#fff' }}>ID</TableCell>
+                  <TableCell sx={{ color: '#fff' }}>Nome</TableCell>
+                  <TableCell sx={{ color: '#fff' }}>Editar</TableCell>
+                  <TableCell sx={{ color: '#fff' }}>Deletar</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {restaurantes.map(restaurante =>
-                  <TableRow key={restaurante.id}>
-                    <TableCell>{restaurante.nome}</TableCell>
+                {restaurantes.map((restaurante, index) =>
+                  <TableRow 
+                    key={restaurante.id}
+                    sx={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'transparent' }} // zebra com cinza clarinho
+                  >
+                    <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
+                      {restaurante.id}
+                    </TableCell>
+                    <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
+                      {restaurante.nome}
+                    </TableCell>
                     <TableCell>
                       <IconButton
                         component={RouterLink}
@@ -100,14 +113,14 @@ const AdminRestaurantes = () => {
                         sx={{
                           backgroundColor: 'transparent',
                           '&:hover': {
-                            backgroundColor: 'primary.dark',
+                            backgroundColor: '#273b27',
                             '& svg': {
                               color: '#fff',
                             },
                           },
                         }}
                       >
-                        <EditIcon sx={{ fontSize: 32, color: 'primary.main' }} />
+                        <EditIcon sx={{ fontSize: 32, color: '#273b27' }} />
                       </IconButton>
                     </TableCell>
 
@@ -122,6 +135,7 @@ const AdminRestaurantes = () => {
                     <TableCell>
                       <IconButton
                         aria-label="delete"
+                        onClick={() => deletar(restaurante)}
                         sx={{
                           backgroundColor: 'transparent',
                           '&:hover': {
@@ -143,7 +157,10 @@ const AdminRestaurantes = () => {
         </Container>
       </Box>
 
+      <Box sx={{ height: 48 }} />
 
+
+     
     </>
   )
 }
