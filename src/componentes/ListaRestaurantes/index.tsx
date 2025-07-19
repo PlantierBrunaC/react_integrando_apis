@@ -6,10 +6,24 @@ import axios from 'axios';
 import { IPaginacao } from '../../interfaces/IPaginacao';
 import IPrato from '../../interfaces/IPrato';
 
+// ✅ Importação dos componentes e ícones do Material UI
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+
 const ListaRestaurantes = () => {
 
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
-  const [proximaPagina, setProximaPagina] = useState('')
+  //Const mesmaPagina está carregando os restaurantes paginados na mesma tela do usuário
+  const [mesmaPagina, setMesmaPagina] = useState('')
+  // funções abaixo são para calcular o total de paginas consultando a API de restaurantes e para paginar
+  const restaurantesPorPagina = 6;
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [paginasAcumuladas, setPaginasAcumuladas] = useState<IRestaurante[][]>([]);
+  const [paginaAtualExibida, setPaginaAtualExibida] = useState(0);
 
   // Código remoção do código chumbado, substituido por API 
   // const restaurantes: IRestaurante[] = [
@@ -101,11 +115,14 @@ const ListaRestaurantes = () => {
     //Obter os restaurantes
     axios.get<IPaginacao<IRestaurante>>('http://localhost:8000/api/v1/restaurantes/')
       .then(response => {
-              const listaRestaurantes = response.data.results
+        const listaRestaurantes = response.data.results
 
         // setRestaurantes(response.data.results)
-        setProximaPagina(response.data.next)
+        // SUBSTITUIDO POR PAGINAÇÃO DOS RESTAURANTES
+        // setMesmaPagina(response.data.next)
         //console.log(response)
+        setMesmaPagina(response.data.next);
+        setTotalPaginas(Math.ceil(response.data.count / restaurantesPorPagina));
 
         axios.get<IPaginacao<IPrato>>('http://localhost:8000/api/v1/pratos/')
           .then(responsePrato => {
@@ -113,43 +130,118 @@ const ListaRestaurantes = () => {
 
             //Relaciona os pratos ao restaurante
             const restaurantesComPratos = listaRestaurantes.map(rest => ({
-  ...rest,
-  pratos: pratos.filter(p => p.restaurante === rest.id)
-}))
-            
+              ...rest,
+              pratos: pratos.filter(p => p.restaurante === rest.id)
+            }))
+
             setRestaurantes(restaurantesComPratos)
-            
+
+            const paginasAgrupadas: IRestaurante[][] = [];
+
+            for (let i = 0; i < restaurantesComPratos.length; i += restaurantesPorPagina) {
+              paginasAgrupadas.push(restaurantesComPratos.slice(i, i + restaurantesPorPagina));
+            }
+
+            setPaginasAcumuladas(paginasAgrupadas);
 
           })
           .catch(error => {
-            console.log("Erro ao carregar pratos"+error)
+            console.log("Erro ao carregar pratos" + error)
           })
-
-
-
       })
       .catch(error => {
         console.log(error)
       })
   }, [])
 
-  const nextPage = () => {
-    axios.get<IPaginacao<IRestaurante>>(proximaPagina)
-      .then(response => {
-        setRestaurantes([...restaurantes, ...response.data.results])
-        setProximaPagina(response.data.next)
-      })
-      .catch(error => {
-        console.log(error)
-      })
-  }
 
-  return (<section className={style.ListaRestaurantes}>
-    <h1>Os restaurantes mais <em>bacanas</em>!</h1>
-    {restaurantes?.map(item => <Restaurante restaurante={item} key={item.id} />)}
-    {proximaPagina && <button onClick={nextPage} >  Ver mais restaurantes </button>
-    }
-  </section>)
+
+  
+const nextPage = () => {
+  axios.get<IPaginacao<IRestaurante>>(mesmaPagina)
+    .then(response => {
+      const novosRestaurantes = response.data.results;
+      const todosRestaurantes = [...restaurantes, ...novosRestaurantes];
+
+      setRestaurantes(todosRestaurantes);
+      setMesmaPagina(response.data.next);
+      setTotalPaginas(Math.ceil(response.data.count / restaurantesPorPagina));
+
+      axios.get<IPaginacao<IPrato>>('http://localhost:8000/api/v1/pratos/')
+        .then(responsePrato => {
+          const pratos = responsePrato.data.results;
+
+          const todosComPratos = todosRestaurantes.map(rest => ({
+            ...rest,
+            pratos: pratos.filter(p => p.restaurante === rest.id)
+          }));
+
+          const novasPaginasAgrupadas: IRestaurante[][] = [];
+
+          for (let i = 0; i < todosComPratos.length; i += restaurantesPorPagina) {
+            novasPaginasAgrupadas.push(todosComPratos.slice(i, i + restaurantesPorPagina));
+          }
+
+          setPaginasAcumuladas(novasPaginasAgrupadas);
+
+          // ✅ Exibir a nova página automaticamente
+          setPaginaAtualExibida((prev) => prev + 1);
+        });
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+
+
+  return (
+    <section className={style.ListaRestaurantes}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Os restaurantes mais <em>bacanas</em>!
+      </Typography>
+
+      {paginasAcumuladas[paginaAtualExibida]?.map(item => (
+        <Restaurante restaurante={item} key={item.id} />
+      ))}
+
+      {mesmaPagina && (
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={nextPage}
+          startIcon={<RestaurantIcon />}
+          sx={{ mt: 2 }}
+        >
+          Ver mais restaurantes
+        </Button>
+      )}
+
+      <Typography sx={{ mt: 4 }}>Páginas: {totalPaginas}</Typography>
+
+      <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setPaginaAtualExibida(paginaAtualExibida - 1)}
+          disabled={paginaAtualExibida === 0}
+          startIcon={<ArrowBackIcon />}
+        >
+          Página Anterior
+        </Button>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setPaginaAtualExibida(paginaAtualExibida + 1)}
+          disabled={paginaAtualExibida >= totalPaginas - 1}
+          endIcon={<ArrowForwardIcon />}
+        >
+          Próxima Página
+        </Button>
+      </Stack>
+    </section>
+  )
 }
 
-export default ListaRestaurantes
+export default ListaRestaurantes;
