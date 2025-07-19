@@ -31,17 +31,31 @@ const FormularioRestaurante = () => {
         evento.preventDefault();
         // console.log("Formulário enviado")
 
-        axios.post("http://localhost:8000/api/v2/restaurantes/", {
-            nome: nomeRestaurante
-        })
-            .then(() => {
-                alert("Restaurante cadastrado com sucesso!")
+        if (parametros.id) {
+            axios.put(`http://localhost:8000/api/v2/restaurantes/${parametros.id}/`, {
+                nome: nomeRestaurante
             })
-            .catch(error => {
-                console.log(error)
+                .then(() => {
+                    alert("Restaurante atualizado com sucesso!")
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+
+        } else {
+            axios.post("http://localhost:8000/api/v2/restaurantes/", {
+                nome: nomeRestaurante
             })
+                .then(() => {
+                    alert("Restaurante cadastrado com sucesso!")
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        }
 
     }
+
 
     return (<form onSubmit={aoSubmeterForm}>
 
