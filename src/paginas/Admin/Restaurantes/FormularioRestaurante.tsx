@@ -1,8 +1,9 @@
-import { Button, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import IRestaurante from "../../../interfaces/IRestaurante";
+import HeaderAdmin from "../../../componentes/HeaderAdmin";
 
 const FormularioRestaurante = () => {
 
@@ -57,25 +58,42 @@ const FormularioRestaurante = () => {
     }
 
 
-    return (<form onSubmit={aoSubmeterForm}>
+    return (
 
-        <TextField value={nomeRestaurante}
-            onChange={evento => setNomeRestaurante(evento.target.value)}
-            id="standard-basic"
-            label="Nome do Restaurante"
-            variant="standard" />
+        <>
+            <Box>
 
-        <p>Nome atual do restaurante: {nomeRestaurante}</p>
-        <p>ID atual do restaurante: {parametros.id}</p>
-        <p>URL atual do restaurante: {`http://localhost:8000/api/v2/restaurantes/${parametros.id}`}</p>
+                <HeaderAdmin
+                    titulo="Administração dos Restaurantes - Alfood"
+                    subtitulo="Formulário do Restaurante" />
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Box component="form" onSubmit={aoSubmeterForm} >
+
+                    <TextField value={nomeRestaurante}
+                        onChange={evento => setNomeRestaurante(evento.target.value)}
+                        id="standard-basic"
+                        label="Nome do Restaurante"
+                        variant="standard" 
+                        fullWidth
+                        margin="normal"
+                        required
+                        />
+
+                    <p>Nome atual do restaurante: {nomeRestaurante}</p>
+                    <p>ID atual do restaurante: {parametros.id}</p>
+                    <p>URL atual do restaurante: {`http://localhost:8000/api/v2/restaurantes/${parametros.id}`}</p>
 
 
 
-        <Button type="submit" variant="outlined" color="primary">Salvar</Button>
+                    <Button type="submit" variant="outlined" fullWidth color="primary" sx={{ mt: 2 }} >Salvar</Button>
+                    </Box>
+                </Box>
+            </Box >
 
 
-
-    </form>)
+        </>
+    )
 }
 
 export default FormularioRestaurante;   
