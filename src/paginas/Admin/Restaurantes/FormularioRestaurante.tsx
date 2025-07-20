@@ -1,9 +1,9 @@
 import { Box, Button, TextField } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import IRestaurante from "../../../interfaces/IRestaurante";
 import HeaderAdmin from "../../../componentes/HeaderAdmin";
+import http from "../../../http";
 
 const FormularioRestaurante = () => {
 
@@ -14,7 +14,7 @@ const FormularioRestaurante = () => {
         if (parametros.id) {
             console.log("ID recebido:", parametros.id)
             //Com CRASE para concatenar o resultado com o parametro
-            axios.get<IRestaurante>(`http://localhost:8000/api/v2/restaurantes/${parametros.id}`)
+            http.get<IRestaurante>(`restaurantes/${parametros.id}`)
                 .then(response => {
                     setNomeRestaurante(response.data.nome)
                     console.log("Response completo:", response);
@@ -33,7 +33,7 @@ const FormularioRestaurante = () => {
         // console.log("Formulário enviado")
 
         if (parametros.id) {
-            axios.put(`http://localhost:8000/api/v2/restaurantes/${parametros.id}/`, {
+            http.put(`restaurantes/${parametros.id}/`, {
                 nome: nomeRestaurante
             })
                 .then(() => {
@@ -44,7 +44,7 @@ const FormularioRestaurante = () => {
                 })
 
         } else {
-            axios.post("http://localhost:8000/api/v2/restaurantes/", {
+            http.post("restaurantes/", {
                 nome: nomeRestaurante
             })
                 .then(() => {
@@ -80,9 +80,9 @@ const FormularioRestaurante = () => {
                         required
                         />
 
-                    <p>Nome atual do restaurante: {nomeRestaurante}</p>
+                    {/* <p>Nome atual do restaurante: {nomeRestaurante}</p>
                     <p>ID atual do restaurante: {parametros.id}</p>
-                    <p>URL atual do restaurante: {`http://localhost:8000/api/v2/restaurantes/${parametros.id}`}</p>
+                    <p>URL atual do restaurante: {`restaurantes/${parametros.id}`}</p> */}
 
 
 

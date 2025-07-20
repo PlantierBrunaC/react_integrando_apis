@@ -19,6 +19,7 @@ import { Link, Link as RouterLink } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import HeaderAdmin from "../../../componentes/HeaderAdmin";
+import http from "../../../http";
 
 
 const AdminRestaurantes = () => {
@@ -26,7 +27,7 @@ const AdminRestaurantes = () => {
     const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([])
 
     useEffect(() => {
-        axios.get<IRestaurante[]>("http://localhost:8000/api/v2/restaurantes/")
+        http.get<IRestaurante[]>("restaurantes/")
             .then(response => {
                 setRestaurantes(response.data)
             })
@@ -37,7 +38,7 @@ const AdminRestaurantes = () => {
     }, [])
 
     const deletar = (restauranteASerDeletado: IRestaurante) => {
-        axios.delete(`http://localhost:8000/api/v2/restaurantes/${restauranteASerDeletado.id}/`)
+        http.delete(`restaurantes/${restauranteASerDeletado.id}/`)
             .then(() => {
                 const listaDeRestaurantes = restaurantes.filter(restaurante => restaurante.id !== restauranteASerDeletado.id)
                 setRestaurantes([...listaDeRestaurantes])
