@@ -20,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import HeaderAdmin from "../../../componentes/HeaderAdmin";
 import http from "../../../http";
+import { botaoPrincipal } from "../../../Estilos/estilos";
 
 
 const AdminRestaurantes = () => {
@@ -64,7 +65,7 @@ const AdminRestaurantes = () => {
                         <Typography variant="h6">Cadastrar novo restaurante</Typography>
                         <Button
                             variant="contained"
-                            sx={{ backgroundColor: '#273b27', '&:hover': { backgroundColor: '#1e2e1e' } }}
+                            sx={botaoPrincipal}
                             component={RouterLink}
                             to="/admin/restaurantes/novo" >
                             Cadastrar

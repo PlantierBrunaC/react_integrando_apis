@@ -1,9 +1,10 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, Container, Paper, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import IRestaurante from "../../../interfaces/IRestaurante";
 import HeaderAdmin from "../../../componentes/HeaderAdmin";
 import http from "../../../http";
+import { botaoPrincipal } from "../../../Estilos/estilos";
 
 const FormularioRestaurante = () => {
 
@@ -57,42 +58,52 @@ const FormularioRestaurante = () => {
 
     }
 
+    const subtitulo = nomeRestaurante ? "Edição do Restaurante" : "Formulário do Restaurante";
+
 
     return (
 
         <>
             <Box>
-
-                <HeaderAdmin
+                {/* REFATORAÇÃO O HEADER FOI PARA A PÁGINA MODELO
+                 <HeaderAdmin
                     titulo="Administração dos Restaurantes - Alfood"
-                    subtitulo="Formulário do Restaurante" />
+                    subtitulo={subtitulo}
+                /> */}
 
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Box component="form" onSubmit={aoSubmeterForm} >
+                <Container maxWidth="lg" sx={{ mt: 3, mb: 3 }}>
+                    <Paper sx={{ p: 3 }}>
+                        <Box
+                            component="form"
+                            onSubmit={aoSubmeterForm}
+                            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+                        >
+                            <TextField
+                                value={nomeRestaurante}
+                                onChange={(evento) => setNomeRestaurante(evento.target.value)}
+                                id="standard-basic"
+                                label="Nome do Restaurante"
+                                variant="standard"
+                                fullWidth
+                                required
+                            />
 
-                    <TextField value={nomeRestaurante}
-                        onChange={evento => setNomeRestaurante(evento.target.value)}
-                        id="standard-basic"
-                        label="Nome do Restaurante"
-                        variant="standard" 
-                        fullWidth
-                        margin="normal"
-                        required
-                        />
-
-                    {/* <p>Nome atual do restaurante: {nomeRestaurante}</p>
-                    <p>ID atual do restaurante: {parametros.id}</p>
-                    <p>URL atual do restaurante: {`restaurantes/${parametros.id}`}</p> */}
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="outlined"
+                                sx={botaoPrincipal}
+                            >
+                                Salvar
+                            </Button>
 
 
-
-                    <Button type="submit" variant="outlined" fullWidth color="primary" sx={{ mt: 2 }} >Salvar</Button>
-                    </Box>
-                </Box>
-            </Box >
-
-
+                        </Box>
+                    </Paper>
+                </Container>
+            </Box>
         </>
+
     )
 }
 
