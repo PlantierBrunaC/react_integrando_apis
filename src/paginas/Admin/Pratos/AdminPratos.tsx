@@ -64,7 +64,7 @@ const AdminPratos = () => {
                             variant="contained"
                             sx={botaoPrincipal}
                             component={RouterLink}
-                            to="/admin/Pratos/novo" >
+                            to="/admin/pratos/novo" >
                             Cadastrar
                         </Button>
                     </Box>

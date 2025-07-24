@@ -6,20 +6,38 @@ const PaginaModelAdmin = () => {
   const localizacao = useLocation();
   const params = useParams();
 
-  let subtitulo = "SUBTITULO";
+  const path = localizacao.pathname;
 
-  if (localizacao.pathname === "/admin/restaurantes") {
-    subtitulo = "Restaurantes";
-  } else if (localizacao.pathname === "/admin/restaurantes/novo") {
-    subtitulo = "Formulário de cadastro de restaurante";
-  } else if (params.id) {
-    subtitulo = "Edição do Restaurante";
-  }
+  const definirSubtitulo = () => {
+    const rotasSubtitulos: { [key: string]: string } = {
+      "/admin/restaurantes": "Restaurantes",
+      "/admin/restaurantes/novo": "Formulário de cadastro de restaurante",
+      "/admin/pratos": "Lista de Pratos",
+      "/admin/pratos/novo": "Formulário do Prato",
+    };
+
+    if (rotasSubtitulos[path]) {
+      return rotasSubtitulos[path];
+    }
+
+    // Casos dinâmicos com ID (edições)
+    if (path.includes("/admin/restaurantes/") && params.id) {
+      return "Edição do Restaurante";
+    }
+
+    if (path.includes("/admin/pratos/") && params.id) {
+      return "Edição do Prato";
+    }
+
+    return "Área Administrativa";
+  };
+
+  const subtitulo = definirSubtitulo();
 
   return (
     <Box>
       <HeaderAdmin
-        titulo="Administração dos Restaurantes - Alfood"
+        titulo="Administração - Alfood"
         subtitulo={subtitulo}
       />
       <Container maxWidth="lg" sx={{ mt: 3, mb: 3 }}>

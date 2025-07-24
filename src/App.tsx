@@ -22,6 +22,7 @@ function App() {
 
       <Route path="pratos" element={<AdminPratos />} />
       <Route path="pratos/novo" element={<FormularioDePrato />} />
+      <Route path="pratos/:id" element={<FormularioDePrato />} />
 </Route>
 
     </Routes>

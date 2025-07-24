@@ -21,6 +21,7 @@ const FormularioDePrato = () => {
 
     const [imagem, setImagem] = useState<File | null>(null);
 
+
     useEffect(() => {
         http.get<{ tags: ITag[] }>(`tags/`)
             .then(response => setTags(response.data.tags))
@@ -43,16 +44,64 @@ const FormularioDePrato = () => {
     const aoSubmeterForm = (evento: React.FormEvent<HTMLFormElement>) => {
         evento.preventDefault();
 
+        if (!nomePrato || !descricaoPrato || !tag || !restauranteLista) {
+            alert("Preencha todos os campos obrigatórios antes de salvar.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("nome", nomePrato);
+        formData.append("descricao", descricaoPrato);
+        formData.append("tag", tag);
+        formData.append("restaurante", restauranteLista);
+        if (imagem) {
+            formData.append("imagem", imagem);
+        }
+
+        // DEBUG:
+        for (const entry of Array.from(formData.entries())) {
+  const [key, value] = entry;
+  if (value instanceof File) {
+    console.log(`${key}: [Arquivo] nome=${value.name}, tipo=${value.type}`);
+  } else {
+    console.log(`${key}: ${value}`);
+  }
+}
+
+
+
+        // REQUEST RECEBE UM OBJETO DE CONFIGURACAO
+        // ESSA REQUEST RECEBE UM MULTIPART FORM DATA E NÃO SOMENTE UM JSON POIS TEM ARQUIVOS
+        http.request({
+            method: "POST",
+            url: "pratos/",
+            data: formData,
+            headers: {
+                "Content-Type": "multipart/form-data",
+            }
+        })
+            .then(() => {
+                setNomePrato("");
+                setDescricaoPrato("");
+                setTag("");
+                setRestauranteLista("");
+                   
+                alert("Prato cadastrado com sucesso!")
+            }
+        )
+            .catch(error => console.log(error))
+
+
     }
 
     const subtitulo = nomePrato ? "Edição do Prato" : "Formulário do Prato";
+
 
 
     return (
 
         <>
             <Box>
-
                 <Container maxWidth="lg" sx={{ mt: 3, mb: 3 }}>
                     <Paper sx={{ p: 3 }}>
                         <Box
@@ -93,7 +142,7 @@ const FormularioDePrato = () => {
                                 </InputLabel>
                                 <Select labelId="select-tag" value={tag} onChange={evento => setTag(evento.target.value)}
                                 >
-                                    {tags.map(tag => <MenuItem key={tag.id} value={tag.id}>
+                                    {tags.map(tag => <MenuItem key={tag.id} value={tag.value}>
                                         {tag.value}
                                     </MenuItem>
                                     )}

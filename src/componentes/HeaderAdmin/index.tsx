@@ -57,7 +57,7 @@ const HeaderAdmin = ({ titulo, subtitulo }: HeaderAdminProps) => {
                   },
                 }}
               >
-                Home
+                Restaurantes Cadastrados
               </Button>
 
               <Button

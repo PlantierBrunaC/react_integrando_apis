@@ -28,6 +28,20 @@ const ListaRestaurantes = () => {
     buscarRestaurantes();
   }, [busca]);
 
+  // ✅ Função que busca todos os pratos de forma paginada
+  const buscarTodosPratos = async (): Promise<IPrato[]> => {
+    let url = 'http://localhost:8000/api/v1/pratos/';
+    let todosPratos: IPrato[] = [];
+
+    while (url) {
+      const response = await axios.get<IPaginacao<IPrato>>(url);
+      todosPratos = [...todosPratos, ...response.data.results];
+      url = response.data.next ?? '';
+    }
+
+    return todosPratos;
+  };
+
   const buscarRestaurantes = () => {
     axios.get<IPaginacao<IRestaurante>>('http://localhost:8000/api/v1/restaurantes/', {
       params: {
@@ -35,38 +49,37 @@ const ListaRestaurantes = () => {
         search: busca
       }
     })
-    .then(response => {
-      const listaRestaurantes = response.data.results;
-      setMesmaPagina(response.data.next);
-      setTotalPaginas(Math.ceil(response.data.count / restaurantesPorPagina));
+      .then(async response => {
+        const listaRestaurantes = response.data.results;
+        setMesmaPagina(response.data.next);
+        setTotalPaginas(Math.ceil(response.data.count / restaurantesPorPagina));
 
-      axios.get<IPaginacao<IPrato>>('http://localhost:8000/api/v1/pratos/')
-        .then(responsePrato => {
-          const pratos = responsePrato.data.results;
+        // ✅ Busca todos os pratos, não apenas a primeira página
+        const pratos = await buscarTodosPratos();
 
-          const restaurantesComPratos = listaRestaurantes.map(rest => ({
-            ...rest,
-            pratos: pratos.filter(p => p.restaurante === rest.id)
-          }));
+        // ✅ Mapeia pratos para os respectivos restaurantes
+        const restaurantesComPratos = listaRestaurantes.map(rest => ({
+          ...rest,
+          pratos: pratos.filter(p => p.restaurante === rest.id)
+        }));
 
-          setRestaurantes(restaurantesComPratos);
+        setRestaurantes(restaurantesComPratos);
 
-          const paginasAgrupadas: IRestaurante[][] = [];
-          for (let i = 0; i < restaurantesComPratos.length; i += restaurantesPorPagina) {
-            paginasAgrupadas.push(restaurantesComPratos.slice(i, i + restaurantesPorPagina));
-          }
+        // ✅ Divide os restaurantes em páginas para exibição
+        const paginasAgrupadas: IRestaurante[][] = [];
+        for (let i = 0; i < restaurantesComPratos.length; i += restaurantesPorPagina) {
+          paginasAgrupadas.push(restaurantesComPratos.slice(i, i + restaurantesPorPagina));
+        }
 
-          setPaginasAcumuladas(paginasAgrupadas);
-          setPaginaAtualExibida(0);
-        })
-        .catch(error => console.log("Erro ao carregar pratos " + error));
-    })
-    .catch(error => console.log(error));
+        setPaginasAcumuladas(paginasAgrupadas);
+        setPaginaAtualExibida(0);
+      })
+      .catch(error => console.log("Erro ao carregar restaurantes " + error));
   };
 
   const nextPage = () => {
     axios.get<IPaginacao<IRestaurante>>(mesmaPagina)
-      .then(response => {
+      .then(async response => {
         const novosRestaurantes = response.data.results;
         const todosRestaurantes = [...restaurantes, ...novosRestaurantes];
 
@@ -74,25 +87,23 @@ const ListaRestaurantes = () => {
         setMesmaPagina(response.data.next);
         setTotalPaginas(Math.ceil(response.data.count / restaurantesPorPagina));
 
-        axios.get<IPaginacao<IPrato>>('http://localhost:8000/api/v1/pratos/')
-          .then(responsePrato => {
-            const pratos = responsePrato.data.results;
+        // ✅ Busca todos os pratos novamente para garantir a lista completa
+        const pratos = await buscarTodosPratos();
 
-            const todosComPratos = todosRestaurantes.map(rest => ({
-              ...rest,
-              pratos: pratos.filter(p => p.restaurante === rest.id)
-            }));
+        const todosComPratos = todosRestaurantes.map(rest => ({
+          ...rest,
+          pratos: pratos.filter(p => p.restaurante === rest.id)
+        }));
 
-            const novasPaginasAgrupadas: IRestaurante[][] = [];
-            for (let i = 0; i < todosComPratos.length; i += restaurantesPorPagina) {
-              novasPaginasAgrupadas.push(todosComPratos.slice(i, i + restaurantesPorPagina));
-            }
+        const novasPaginasAgrupadas: IRestaurante[][] = [];
+        for (let i = 0; i < todosComPratos.length; i += restaurantesPorPagina) {
+          novasPaginasAgrupadas.push(todosComPratos.slice(i, i + restaurantesPorPagina));
+        }
 
-            setPaginasAcumuladas(novasPaginasAgrupadas);
-            setPaginaAtualExibida((prev) => prev + 1);
-          });
+        setPaginasAcumuladas(novasPaginasAgrupadas);
+        setPaginaAtualExibida((prev) => prev + 1);
       })
-      .catch(error => console.log(error));
+      .catch(error => console.log("Erro ao carregar próxima página: " + error));
   };
 
   const limparBusca = () => {
