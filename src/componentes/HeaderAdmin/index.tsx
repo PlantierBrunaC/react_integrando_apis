@@ -1,4 +1,7 @@
-import { Box, Container, Typography, Link, Button, Stack } from "@mui/material";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import { Box, Container, Typography, Link, Button, Stack, IconButton } from "@mui/material";
+import { Link as RouterLink } from 'react-router-dom';
+
 
 interface HeaderAdminProps {
   titulo: string;
@@ -31,10 +34,20 @@ const HeaderAdmin = ({ titulo, subtitulo }: HeaderAdminProps) => {
             {subtitulo}
           </Typography>
 
+
           {/* Links abaixo do subtítulo */}
-          <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
-            <Link href="/admin/restaurantes" underline="none">
+          {/* Linha com botões centralizados e ícone à direita */}
+          <Box sx={{ position: 'relative' }}>
+            {/* Botões centralizados */}
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent="center"
+              alignItems="center"
+            >
               <Button
+                component={RouterLink}
+                to="/admin/restaurantes"
                 sx={{
                   color: '#fff',
                   textTransform: 'none',
@@ -46,25 +59,10 @@ const HeaderAdmin = ({ titulo, subtitulo }: HeaderAdminProps) => {
               >
                 Home
               </Button>
-            </Link>
 
-            <Link   href="/admin/restaurantes/novo" underline="none">
-              <Button  
-                sx={{
-                  color: '#fff',
-                  textTransform: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                    textDecorationColor: '#fff',
-                  },
-                }}
-              >
-                Cadastrar Restaurante 
-              </Button>
-            </Link>
-
-            <Link href="#" underline="none">
               <Button
+                component={RouterLink}
+                to="/admin/restaurantes/novo"
                 sx={{
                   color: '#fff',
                   textTransform: 'none',
@@ -74,10 +72,46 @@ const HeaderAdmin = ({ titulo, subtitulo }: HeaderAdminProps) => {
                   },
                 }}
               >
-                Cadastrar Prato 
+                Cadastrar Restaurante
               </Button>
-            </Link>
-          </Stack>
+
+              <Button
+                component={RouterLink}
+                to="/admin/pratos"
+                sx={{
+                  color: '#fff',
+                  textTransform: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                    textDecorationColor: '#fff',
+                  },
+                }}
+              >
+                Pratos cadastrados
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/admin/pratos/novo"
+                sx={{
+                  color: '#fff',
+                  textTransform: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                    textDecorationColor: '#fff',
+                  },
+                }}
+              >
+                Cadastrar Prato
+              </Button>
+            </Stack>
+
+            {/* Ícone alinhado à direita */}
+            <Box sx={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }}>
+              <IconButton component={RouterLink} to="/restaurantes">
+                <AccountCircle fontSize="large" sx={{ color: '#fff' }} />
+              </IconButton>
+            </Box>
+          </Box>
 
         </Container>
       </Box>

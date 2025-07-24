@@ -1,38 +1,59 @@
+.navbar {
+  background-color: #f8f8f8;
+  padding: 10px 20px;
+}
+
+.navWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+/* espaço à esquerda */
+.leftSpace {
+  width: 25%;
+}
+
+/* links centralizados */
 .Link {
-    text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
 
-    ul {
-        padding: 0;
+  li {
+    list-style: none;
 
-        li {
-            list-style: none;
-            display: inline-block;
-            margin: 0 8px;
-
-            &::after {
-                content: "";
-                display: block;
-                width: 0;
-                height: 2px;
-                background: #000;
-                transition: width 0.3s;
-            }
-
-            &:hover::after {
-                width: 100%;
-
-                //transition: width .3s;
-           
-            }
-
-            a {
-                text-decoration: none;
-                font-size: 1.5rem;
-
-                &:visited {
-                    color: #000;
-                }
-            }
-        }
+    &::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 2px;
+      background: #000;
+      transition: width 0.3s;
     }
+
+    &:hover::after {
+      width: 100%;
+    }
+
+    a {
+      text-decoration: none;
+      font-size: 1.5rem;
+      color: #000;
+
+      &:visited {
+        color: #000;
+      }
+    }
+  }
+}
+
+/* ícone do usuário à direita */
+.userIcon {
+  width: 25%;
+  display: flex;
+  justify-content: flex-end;
 }

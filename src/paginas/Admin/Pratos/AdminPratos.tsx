@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import IRestaurante from "../../../interfaces/IRestaurante";
+import IPratos from "../../../interfaces/IPrato";
 import {
     IconButton,
     Paper,
@@ -23,14 +23,14 @@ import http from "../../../http";
 import { botaoPrincipal } from "../../../Estilos/estilos";
 
 
-const AdminRestaurantes = () => {
+const AdminPratos = () => {
 
-    const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([])
+    const [pratos, setPratos] = useState<IPratos[]>([])
 
     useEffect(() => {
-        http.get<IRestaurante[]>("restaurantes/")
+        http.get<IPratos[]>("pratos/")
             .then(response => {
-                setRestaurantes(response.data)
+                setPratos(response.data)
             })
             .catch(error => {
                 console.log(error)
@@ -38,12 +38,12 @@ const AdminRestaurantes = () => {
 
     }, [])
 
-    const deletar = (restauranteASerDeletado: IRestaurante) => {
-        http.delete(`restaurantes/${restauranteASerDeletado.id}/`)
+    const deletar = (PratoASerDeletado: IPratos) => {
+        http.delete(`pratos/${PratoASerDeletado.id}/`)
             .then(() => {
-                const listaDeRestaurantes = restaurantes.filter(restaurante => restaurante.id !== restauranteASerDeletado.id)
-                setRestaurantes([...listaDeRestaurantes])
-                alert("Restaurante deletado com sucesso!")
+                const listaDeRestaurantes = pratos.filter(prato => prato.id !== PratoASerDeletado.id)
+                setPratos([...listaDeRestaurantes])
+                alert("Pratos deletado com sucesso!")
             }
             )
 
@@ -56,15 +56,15 @@ const AdminRestaurantes = () => {
             <Box>
 
                
-                {/* BOTÃO DE CADASTRAR NOVO RESTAURANTE */}
+                {/* BOTÃO DE CADASTRAR NOVO Pratos */}
                 <Container maxWidth="lg" sx={{ mb: 3 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6">Cadastrar novo restaurante</Typography>
+                        <Typography variant="h6">Cadastrar novo Prato</Typography>
                         <Button
                             variant="contained"
                             sx={botaoPrincipal}
                             component={RouterLink}
-                            to="/admin/restaurantes/novo" >
+                            to="/admin/Pratos/novo" >
                             Cadastrar
                         </Button>
                     </Box>
@@ -73,33 +73,46 @@ const AdminRestaurantes = () => {
                 {/* TABELA CENTRALIZADA COM MAIOR LARGURA */}
                 <Container maxWidth="lg">
 
-                    {/* <h1>Admin Restaurantes</h1> */}
+                    {/* <h1>Admin Pratos</h1> */}
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#273b27' }}>
                                     <TableCell sx={{ color: '#fff' }}>ID</TableCell>
                                     <TableCell sx={{ color: '#fff' }}>Nome</TableCell>
+                                    <TableCell sx={{ color: '#fff' }}>Descrição</TableCell>
+                                    <TableCell sx={{ color: '#fff' }}>Tag</TableCell>
+                                    <TableCell sx={{ color: '#fff' }}>Imagem</TableCell>
                                     <TableCell sx={{ color: '#fff' }}>Editar</TableCell>
                                     <TableCell sx={{ color: '#fff' }}>Deletar</TableCell>
                                 </TableRow>
                             </TableHead>
+
                             <TableBody>
-                                {restaurantes.map((restaurante, index) =>
+                                {pratos.map((prato, index) =>
                                     <TableRow
-                                        key={restaurante.id}
+                                        key={prato.id}
                                         sx={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'transparent' }} // zebra com cinza clarinho
                                     >
                                         <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
-                                            {restaurante.id}
+                                            {prato.id}
                                         </TableCell>
                                         <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
-                                            {restaurante.nome}
+                                            {prato.nome}
+                                        </TableCell>
+                                        <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
+                                            {prato.descricao}
+                                        </TableCell>
+                                        <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
+                                            {prato.tag}
+                                        </TableCell>
+                                        <TableCell sx={{ color: '#273b27', fontWeight: 500 }}>
+                                           <a href={prato.imagem} target="_blank" rel="noopener noreferrer">Ver imagem</a>
                                         </TableCell>
                                         <TableCell>
                                             <IconButton
                                                 component={RouterLink}
-                                                to={`/admin/restaurantes/${restaurante.id}`}
+                                                to={`/admin/pratos/${prato.id}`}
                                                 aria-label="edit"
                                                 sx={{
                                                     backgroundColor: 'transparent',
@@ -115,18 +128,10 @@ const AdminRestaurantes = () => {
                                             </IconButton>
                                         </TableCell>
 
-                                        {/* <TableCell>
-                      [ <Link to={`/admin/restaurantes/${restaurante.id}`}>
-                          <IconButton aria-label="edit">
-                              <EditIcon />
-                          </IconButton>
-                          Editar</Link> ]
-                    </TableCell> */}
-
                                         <TableCell>
                                             <IconButton
                                                 aria-label="delete"
-                                                onClick={() => deletar(restaurante)}
+                                                onClick={() => deletar(prato)}
                                                 sx={{
                                                     backgroundColor: 'transparent',
                                                     '&:hover': {
@@ -155,4 +160,4 @@ const AdminRestaurantes = () => {
         </>
     )
 }
-export default AdminRestaurantes;
+export default AdminPratos;
